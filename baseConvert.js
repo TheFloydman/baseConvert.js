@@ -15,8 +15,9 @@
 */
 
 function baseConvert (startingNumber, fromBase, toBase) {
+  /* If fromBase and toBase are the same, no conversion is necessary. */
   if (fromBase == toBase) {
-    return startingNumber;
+    return String(startingNumber);
   }
 
   /* Split number at decimal point. */
@@ -31,7 +32,7 @@ function baseConvert (startingNumber, fromBase, toBase) {
   /* If the number is already in Base 10, move on to convert it to its
   destination base; otherwise, convert it to Base 10. */
   if (fromBase != 10) {
-    integralDec = baseConvertConvertIntegralToDec(startingArray[0], fromBase);
+    integralDec = parseInt(String(startingArray[0]),fromBase);
     if (startingArray[1] == 'no') {
       fractionalDec = '0';
     } else {
@@ -41,12 +42,12 @@ function baseConvert (startingNumber, fromBase, toBase) {
 
   fractionalDecString = baseConvertArrayToString(fractionalDec);
 
-  var integralFinal = baseConvertConvertIntegralToFinalBase(integralDec, toBase);
-    if (startingArray[1] == 'no') {
-      var fractionalFinal = '0';
-    } else {
-      var fractionalFinal = baseConvertConvertFractionalToFinalBase(fractionalDecString, toBase);
-    }
+  var integralFinal = integralDec.toString(toBase);
+  if (startingArray[1] == 'no') {
+    var fractionalFinal = '0';
+  } else {
+    var fractionalFinal = baseConvertConvertFractionalToFinalBase(fractionalDecString, toBase);
+  }
 
   var convertedToFinalBase = integralFinal + '.' + fractionalFinal;
   for (var i = 0; i < fractionalFinal.length + 1; i++) {
@@ -86,7 +87,8 @@ function baseConvertConvertFractionalToDec (fractionalNumber, fromBase) {
   /* Skip this function if there are only zeroes after the decimal point. */
   var lettersToNumbers = [];
   for (var i = 0; i < fractionalNumber.length; i++) {
-    lettersToNumbers[i] = baseConvertConvertLetterToDecNumber(fractionalNumber[i]);
+    /* Converts letters A - Z into numbers 10 - 35. */
+    lettersToNumbers[i] = parseInt(fractionalNumber[i],36);
   }
   fractionalNumber = lettersToNumbers;
 
@@ -102,146 +104,6 @@ function baseConvertConvertFractionalToDec (fractionalNumber, fromBase) {
     }
   }
   return String(fractionalDec).slice(2);
-}
-
-function baseConvertConvertIntegralToDec (integralNumber, fromBase) {
-  /* Skip this function if there are only zeroes before the decimal point. */
-  var lettersToNumbers = [];
-  for (var i = 0; i < integralNumber.length; i++) {
-    lettersToNumbers[i] = baseConvertConvertLetterToDecNumber(integralNumber[i]);
-  }
-  integralNumber = lettersToNumbers;
-
-  if (Number(baseConvertArrayToString(integralNumber)) == 0) {
-    return '0';
-  }
-
-  var numberOfDigits = integralNumber.length;
-  var integralDec = 0;
-  for (var i = 0, j = numberOfDigits - 1; i < numberOfDigits; i++, j--) {
-    integralDec += Number(integralNumber[i]) * Math.pow(fromBase,j);
-  }
-  return String(integralDec);
-}
-
-function baseConvertConvertLetterToDecNumber (letter) {
-  var letterToNumber = letter;
-
-  if (letter == 'A' || letter == 'a') {
-    letterToNumber = 10;
-  } else if (letter == 'B' || letter == 'b') {
-    letterToNumber = 11;
-  } else if (letter == 'C' || letter == 'c') {
-    letterToNumber = 12;
-  } else if (letter == 'D' || letter == 'd') {
-    letterToNumber = 13;
-  } else if (letter == 'E' || letter == 'e') {
-    letterToNumber = 14;
-  } else if (letter == 'F' || letter == 'f') {
-    letterToNumber = 15;
-  } else if (letter == 'G' || letter == 'g') {
-    letterToNumber = 16;
-  } else if (letter == 'H' || letter == 'h') {
-    letterToNumber = 17;
-  } else if (letter == 'I' || letter == 'i') {
-    letterToNumber = 18;
-  } else if (letter == 'J' || letter == 'j') {
-    letterToNumber = 19;
-  } else if (letter == 'K' || letter == 'k') {
-    letterToNumber = 20;
-  } else if (letter == 'L' || letter == 'l') {
-    letterToNumber = 21;
-  } else if (letter == 'M' || letter == 'm') {
-    letterToNumber = 22;
-  } else if (letter == 'N' || letter == 'n') {
-    letterToNumber = 23;
-  } else if (letter == 'O' || letter == 'o') {
-    letterToNumber = 24;
-  } else if (letter == 'P' || letter == 'p') {
-    letterToNumber = 25;
-  } else if (letter == 'Q' || letter == 'q') {
-    letterToNumber = 26;
-  } else if (letter == 'R' || letter == 'r') {
-    letterToNumber = 27;
-  } else if (letter == 'S' || letter == 's') {
-    letterToNumber = 28;
-  } else if (letter == 'T' || letter == 't') {
-    letterToNumber = 29;
-  } else if (letter == 'U' || letter == 'u') {
-    letterToNumber = 30;
-  } else if (letter == 'V' || letter == 'v') {
-    letterToNumber = 31;
-  } else if (letter == 'W' || letter == 'w') {
-    letterToNumber = 32;
-  } else if (letter == 'X' || letter == 'x') {
-    letterToNumber = 33;
-  } else if (letter == 'Y' || letter == 'y') {
-    letterToNumber = 34;
-  } else if (letter == 'Z' || letter == 'z') {
-    letterToNumber = 35;
-  }
-
-  return letterToNumber;
-}
-
-function baseConvertConvertNumberToLetter (startNumber) {
-  var numberToLetter = startNumber;
-
-  if (Number(startNumber) == 10) {
-    numberToLetter = 'A';
-  } else if (Number(startNumber) == 11) {
-    numberToLetter = 'B';
-  } else if (Number(startNumber) == 12) {
-    numberToLetter = 'C';
-  } else if (Number(startNumber) == 13) {
-    numberToLetter = 'D';
-  } else if (Number(startNumber) == 14) {
-    numberToLetter = 'E';
-  } else if (Number(startNumber) == 15) {
-    numberToLetter = 'F';
-  } else if (Number(startNumber) == 16) {
-    numberToLetter = 'G';
-  } else if (Number(startNumber) == 17) {
-    numberToLetter = 'H';
-  } else if (Number(startNumber) == 18) {
-    numberToLetter = 'I';
-  } else if (Number(startNumber) == 19) {
-    numberToLetter = 'J';
-  } else if (Number(startNumber) == 20) {
-    numberToLetter = 'K';
-  } else if (Number(startNumber) == 21) {
-    numberToLetter = 'L';
-  } else if (Number(startNumber) == 22) {
-    numberToLetter = 'M';
-  } else if (Number(startNumber) == 23) {
-    numberToLetter = 'N';
-  } else if (Number(startNumber) == 24) {
-    numberToLetter = 'O';
-  } else if (Number(startNumber) == 25) {
-    numberToLetter = 'P';
-  } else if (Number(startNumber) == 26) {
-    numberToLetter = 'Q';
-  } else if (Number(startNumber) == 27) {
-    numberToLetter = 'R';
-  } else if (Number(startNumber) == 28) {
-    numberToLetter = 'S';
-  } else if (Number(startNumber) == 29) {
-    numberToLetter = 'T';
-  } else if (Number(startNumber) == 30) {
-    numberToLetter = 'U';
-  } else if (Number(startNumber) == 31) {
-    numberToLetter = 'V';
-  } else if (Number(startNumber) == 32) {
-    numberToLetter = 'W';
-  } else if (Number(startNumber) == 33) {
-    numberToLetter = 'X';
-  } else if (Number(startNumber) == 34) {
-    numberToLetter = 'Y';
-  } else if (Number(startNumber) == 35) {
-    numberToLetter = 'Z';
-  }
-
-  return numberToLetter;
 }
 
 function baseConvertArrayToString (startArray) {
@@ -260,30 +122,6 @@ function baseConvertStringToArray (startString) {
   return endArray;
 }
 
-function baseConvertConvertIntegralToFinalBase (integralDec, toBase) {
-  var integralDecNumber = Number(integralDec);
-  /* Skip this function if there are only zeroes before the decimal point. */
-    if (integralDecNumber == 0) {
-    return '0';
-  }
-
-  var integralToBase = '';
-  var d = 0;
-  var r = [];
-
-  for (var i = 0; integralDecNumber > 0; i++) {
-    d = Math.floor(integralDecNumber/toBase);
-    r[i] = integralDecNumber - (d * toBase);
-    r[i] = baseConvertConvertNumberToLetter(r[i]);
-    integralDecNumber = d;
-  }
-
-  var flippedR = baseConvertFlipArray(r);
-  var integralFinal = baseConvertArrayToString(flippedR);
-
-  return integralFinal;
-}
-
 function baseConvertConvertFractionalToFinalBase (fractionalDec, toBase) {
   var fractionalDecNumber = Number(fractionalDec);
   /* Skip this function if there are only zeroes after the decimal point. */
@@ -299,7 +137,8 @@ function baseConvertConvertFractionalToFinalBase (fractionalDec, toBase) {
     a = Number('.' + String(fractionalDecNumber)) * toBase;
     r[i] = Math.floor(a);
     d = a - r[i];
-    r[i] = baseConvertConvertNumberToLetter(r[i]);
+    /* Converts number 10 - 35 into letters A - Z. */
+    r[i] = r[i].toString(36).toUpperCase();
     fractionalDecNumber = Number(String(d).slice(2));
   }
   var fractionalFinal = baseConvertArrayToString(r);
