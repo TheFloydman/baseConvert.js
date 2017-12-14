@@ -20,8 +20,8 @@ function baseConvert (startingNumber, fromBase, toBase) {
   }
 
   /* Split number at decimal point. */
-  var startingArray = determineParts(String(startingNumber));
-  var integralDec = arrayToString(startingArray[0]);
+  var startingArray = baseConvertDetermineParts(String(startingNumber));
+  var integralDec = baseConvertArrayToString(startingArray[0]);
   if (startingArray[1] == 'no') {
     var fractionalDec = '0';
   } else {
@@ -31,21 +31,21 @@ function baseConvert (startingNumber, fromBase, toBase) {
   /* If the number is already in Base 10, move on to convert it to its
   destination base; otherwise, convert it to Base 10. */
   if (fromBase != 10) {
-    integralDec = convertIntegralToDec(startingArray[0], fromBase);
+    integralDec = baseConvertConvertIntegralToDec(startingArray[0], fromBase);
     if (startingArray[1] == 'no') {
       fractionalDec = '0';
     } else {
-      fractionalDec = convertFractionalToDec(startingArray[1], fromBase);
+      fractionalDec = baseConvertConvertFractionalToDec(startingArray[1], fromBase);
     }
   }
 
-  fractionalDecString = arrayToString(fractionalDec);
+  fractionalDecString = baseConvertArrayToString(fractionalDec);
 
-  var integralFinal = convertIntegralToFinalBase(integralDec, toBase);
+  var integralFinal = baseConvertConvertIntegralToFinalBase(integralDec, toBase);
     if (startingArray[1] == 'no') {
       var fractionalFinal = '0';
     } else {
-      var fractionalFinal = convertFractionalToFinalBase(fractionalDecString, toBase);
+      var fractionalFinal = baseConvertConvertFractionalToFinalBase(fractionalDecString, toBase);
     }
 
   var convertedToFinalBase = integralFinal + '.' + fractionalFinal;
@@ -57,7 +57,7 @@ function baseConvert (startingNumber, fromBase, toBase) {
   return convertedToFinalBase;
 }
 
-function determineParts (startingNumber) {
+function baseConvertDetermineParts (startingNumber) {
   var integralNumber = startingNumber;
   var integralNumberArray = [];
   for (var i = 0; i < integralNumber.length; i++) {
@@ -82,15 +82,15 @@ function determineParts (startingNumber) {
   return [integralNumberArray, 'no'];
 }
 
-function convertFractionalToDec (fractionalNumber, fromBase) {
+function baseConvertConvertFractionalToDec (fractionalNumber, fromBase) {
   /* Skip this function if there are only zeroes after the decimal point. */
   var lettersToNumbers = [];
   for (var i = 0; i < fractionalNumber.length; i++) {
-    lettersToNumbers[i] = convertLetterToDecNumber(fractionalNumber[i]);
+    lettersToNumbers[i] = baseConvertConvertLetterToDecNumber(fractionalNumber[i]);
   }
   fractionalNumber = lettersToNumbers;
 
-  if (Number(arrayToString(fractionalNumber)) == 0) {
+  if (Number(baseConvertArrayToString(fractionalNumber)) == 0) {
     return '0';
   }
 
@@ -104,15 +104,15 @@ function convertFractionalToDec (fractionalNumber, fromBase) {
   return String(fractionalDec).slice(2);
 }
 
-function convertIntegralToDec (integralNumber, fromBase) {
+function baseConvertConvertIntegralToDec (integralNumber, fromBase) {
   /* Skip this function if there are only zeroes before the decimal point. */
   var lettersToNumbers = [];
   for (var i = 0; i < integralNumber.length; i++) {
-    lettersToNumbers[i] = convertLetterToDecNumber(integralNumber[i]);
+    lettersToNumbers[i] = baseConvertConvertLetterToDecNumber(integralNumber[i]);
   }
   integralNumber = lettersToNumbers;
 
-  if (Number(arrayToString(integralNumber)) == 0) {
+  if (Number(baseConvertArrayToString(integralNumber)) == 0) {
     return '0';
   }
 
@@ -124,7 +124,7 @@ function convertIntegralToDec (integralNumber, fromBase) {
   return String(integralDec);
 }
 
-function convertLetterToDecNumber (letter) {
+function baseConvertConvertLetterToDecNumber (letter) {
   var letterToNumber = letter;
 
   if (letter == 'A' || letter == 'a') {
@@ -184,7 +184,7 @@ function convertLetterToDecNumber (letter) {
   return letterToNumber;
 }
 
-function convertNumberToLetter (startNumber) {
+function baseConvertConvertNumberToLetter (startNumber) {
   var numberToLetter = startNumber;
 
   if (Number(startNumber) == 10) {
@@ -244,7 +244,7 @@ function convertNumberToLetter (startNumber) {
   return numberToLetter;
 }
 
-function arrayToString (startArray) {
+function baseConvertArrayToString (startArray) {
   endString = '';
   for (var i = 0; i < startArray.length; i ++) {
     endString += String(startArray[i]);
@@ -252,7 +252,7 @@ function arrayToString (startArray) {
   return endString;
 }
 
-function stringToArray (startString) {
+function baseConvertStringToArray (startString) {
   endArray = [];
   for (var i = 0; i < startString.length; i ++) {
     endArray[i] = startString[i];
@@ -260,7 +260,7 @@ function stringToArray (startString) {
   return endArray;
 }
 
-function convertIntegralToFinalBase (integralDec, toBase) {
+function baseConvertConvertIntegralToFinalBase (integralDec, toBase) {
   var integralDecNumber = Number(integralDec);
   /* Skip this function if there are only zeroes before the decimal point. */
     if (integralDecNumber == 0) {
@@ -274,17 +274,17 @@ function convertIntegralToFinalBase (integralDec, toBase) {
   for (var i = 0; integralDecNumber > 0; i++) {
     d = Math.floor(integralDecNumber/toBase);
     r[i] = integralDecNumber - (d * toBase);
-    r[i] = convertNumberToLetter(r[i]);
+    r[i] = baseConvertConvertNumberToLetter(r[i]);
     integralDecNumber = d;
   }
 
-  var flippedR = flipArray(r);
-  var integralFinal = arrayToString(flippedR);
+  var flippedR = baseConvertFlipArray(r);
+  var integralFinal = baseConvertArrayToString(flippedR);
 
   return integralFinal;
 }
 
-function convertFractionalToFinalBase (fractionalDec, toBase) {
+function baseConvertConvertFractionalToFinalBase (fractionalDec, toBase) {
   var fractionalDecNumber = Number(fractionalDec);
   /* Skip this function if there are only zeroes after the decimal point. */
     if (fractionalDecNumber == 0) {
@@ -299,14 +299,14 @@ function convertFractionalToFinalBase (fractionalDec, toBase) {
     a = Number('.' + String(fractionalDecNumber)) * toBase;
     r[i] = Math.floor(a);
     d = a - r[i];
-    r[i] = convertNumberToLetter(r[i]);
+    r[i] = baseConvertConvertNumberToLetter(r[i]);
     fractionalDecNumber = Number(String(d).slice(2));
   }
-  var fractionalFinal = arrayToString(r);
+  var fractionalFinal = baseConvertArrayToString(r);
   return fractionalFinal;
 }
 
-function flipArray (startingArray) {
+function baseConvertFlipArray (startingArray) {
 	var endingArray = [];
 	for (var i = 0, j = startingArray.length - 1; i < startingArray.length; i++, j--) {
 		endingArray[i] = startingArray[j];
