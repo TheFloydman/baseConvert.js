@@ -1,11 +1,15 @@
 /*
 *
-* baseConvert.js by Dan Floyd (Floydman). This script is unique because it
-* supports fractional values, so it provides more support than plain Javascript
-* alone, which only supports integers.
+* baseConvert.js by Dan Floyd (Floydman). Convert any real number between any
+* two bases from 2 to 36.
 *
-* To use, simply call the function:
-* baseConvert(startingNumber, fromBase, toBase)
+*
+* Usage: baseConvert(startingNumber, fromBase, toBase, fractionalLength)
+* : startingNumber is the number you want to convert. (MANDATORY)
+* : fromBase is the base you are converting from. (MANDATORY)
+* : toBase is the base you are converting to. (MANDATORY)
+* : fractLength is the maximum number of digits you would like after the
+* : radix point. (OPTIONAL)
 *
 * Works with all bases from 2 to 36; numbers are represented with numerals
 * 0 - 9 and letters A - Z. startingNumber must be a String if it contains any
@@ -14,141 +18,99 @@
 *
 */
 
-function baseConvert (startingNumber, fromBase, toBase) {
-  /* If fromBase and toBase are the same, no conversion is necessary. */
-  if (fromBase == toBase) {
-    return String(startingNumber);
+function baseConvert (startingNumber, fromBase, toBase, fracLength) {
+  /* Error detection. */
+  var fatalError = false;
+  if (typeof startingNumber == 'undefined') {
+    console.log('baseConvert.js Error: startingNumber is undefined.');
+    fatalError = true;
+  }
+  if (typeof fromBase == 'undefined') {
+    console.log('baseConvert.js Error: fromBase is undefined.');
+    fatalError = true;
+  }
+  if (typeof toBase == 'undefined') {
+    console.log('baseConvert.js Error: toBase is undefined.');
+    fatalError = true;
+  }
+  if (typeof startingNumber != 'number' && typeof startingNumber != 'string') {
+    console.log('baseConvert.js Error: startingNumber is not a number nor a string.');
+    fatalError = true;
+  }
+  if (fromBase < 2 || fromBase > 36) {
+    console.log('baseConvert.js Error: fromBase is not between 2 and 36.');
+    fatalError = true;
+  }
+  if (toBase < 2 || toBase > 36) {
+    console.log('baseConvert.js Error: toBase is not between 2 and 36.');
+    fatalError = true;
+  }
+  if (typeof fracLength == 'undefined') {
+    console.log('baseConvert.js Message: fracLength not provided; defaulting to 50.');
+    fracLength = 50;
+  }
+  if (fatalError == true) {
+    return;
   }
 
-  /* Split number at decimal point. */
-  var startingArray = baseConvertDetermineParts(String(startingNumber));
-  var integralDec = baseConvertArrayToString(startingArray[0]);
-  if (startingArray[1] == 'no') {
-    var fractionalDec = '0';
+  var startingNumberString = String(startingNumber);
+
+  /* If fromBase and toBase are the same, or if startingNumber is equal to 0 or 1,
+  conversion is complete! */
+  if (Number(fromBase) == Number(toBase) || Number(startingNumber) == 0 || Number(startingNumber) == 1) {
+    return startingNumberString;
+  }
+
+  /* Split number into integral and fractional parts. Returns strings. */
+  var radixPlace = startingNumberString.indexOf('.');
+  if (radixPlace != -1) {
+    var intStart = startingNumberString.slice(0, radixPlace);
+    intStart = (intStart == '') ? '0':intStart;
+    var fracStart = '0.' + startingNumberString.slice(radixPlace + 1);
   } else {
-    var fractionalDec = startingArray[1];
+    var fracStart = '0';
+    var intStart = startingNumberString;
   }
 
-  /* If the number is already in Base 10, move on to convert it to its
-  destination base; otherwise, convert it to Base 10. */
-  if (fromBase != 10) {
-    integralDec = parseInt(String(startingArray[0]),fromBase);
-    if (startingArray[1] == 'no') {
-      fractionalDec = '0';
-    } else {
-      fractionalDec = baseConvertConvertFractionalToDec(startingArray[1], fromBase);
+  var intFinal = convertInt (intStart, fromBase, toBase);
+  var fracFinal = fracToDecToBase (fracStart, fromBase, toBase);
+  var wholeFinal = intFinal + '.' + fracFinal;
+  // Remove the radix point if there is nothing after it.
+  while (wholeFinal.charAt(wholeFinal.length - 1) == '.') {
+    wholeFinal = wholeFinal.slice(0, wholeFinal.length - 1);
+  }
+  return wholeFinal;
+
+  function convertInt (intStart, fromBase, toBase) {
+    var intDec = parseInt(intStart, fromBase);
+    var intFinal = intDec.toString(toBase).toUpperCase();
+    return intFinal; // string
+  }
+
+  function fracToDecToBase (fracStart, fromBase, toBase) {
+    /* Convert fractional value to Base 10. */
+    var fracDec = 0;
+    for (var i = 2, j = 1; i < fracStart.length; i++, j++) {
+      fracDec += parseInt(fracStart[i],36) / Math.pow(fromBase, j);
     }
-  }
-
-  fractionalDecString = baseConvertArrayToString(fractionalDec);
-
-  var integralFinal = integralDec.toString(toBase);
-  if (startingArray[1] == 'no') {
-    var fractionalFinal = '0';
-  } else {
-    var fractionalFinal = baseConvertConvertFractionalToFinalBase(fractionalDecString, toBase);
-  }
-
-  var convertedToFinalBase = integralFinal + '.' + fractionalFinal;
-  for (var i = 0; i < fractionalFinal.length + 1; i++) {
-    if (convertedToFinalBase.charAt(convertedToFinalBase.length - 1) == '0' || convertedToFinalBase.charAt(convertedToFinalBase.length - 1) == '.') {
-      convertedToFinalBase = convertedToFinalBase.slice(0,convertedToFinalBase.length - 1);
+    if (fromBase == 10) {
+      fracDec = Number(fracStart);
     }
-  }
-  return convertedToFinalBase;
-}
 
-function baseConvertDetermineParts (startingNumber) {
-  var integralNumber = startingNumber;
-  var integralNumberArray = [];
-  for (var i = 0; i < integralNumber.length; i++) {
-    integralNumberArray[i] = integralNumber[i];
-  }
-  /* Use decimal point to determine the integral and fractional portions of the
-  number. */
-  var decimalPlace = startingNumber.indexOf('.');
-  if (decimalPlace != -1) {
-    var fractionalNumber = startingNumber.slice(decimalPlace + 1)
-    var fractionalNumberArray = [];
-    for (var i = 0; i < fractionalNumber.length; i++) {
-      fractionalNumberArray[i] = fractionalNumber[i];
+    /* Convert fractional value to the final base. */
+    var fracBase = '';
+    if (toBase == 10) {
+      return String(fracDec).slice(2);
     }
-    integralNumber = startingNumber.slice(0, decimalPlace);
-    var integralNumberArray = [];
-    for (var i = 0; i < integralNumber.length; i++) {
-      integralNumberArray[i] = integralNumber[i];
+    for (var i = 0; fracDec > 0 && i < Number(fracLength); i++) {
+      d = fracDec * toBase;
+      fracBase += String(Math.floor(d).toString(36).toUpperCase());
+      fracDec = d - Math.floor(d);
     }
-    return [integralNumberArray, fractionalNumberArray];
-  }
-  return [integralNumberArray, 'no'];
-}
-
-function baseConvertConvertFractionalToDec (fractionalNumber, fromBase) {
-  /* Skip this function if there are only zeroes after the decimal point. */
-  var lettersToNumbers = [];
-  for (var i = 0; i < fractionalNumber.length; i++) {
-    /* Converts letters A - Z into numbers 10 - 35. */
-    lettersToNumbers[i] = parseInt(fractionalNumber[i],36);
-  }
-  fractionalNumber = lettersToNumbers;
-
-  if (Number(baseConvertArrayToString(fractionalNumber)) == 0) {
-    return '0';
-  }
-
-  var numberOfDigits = fractionalNumber.length;
-  var fractionalDec = 0;
-  for (var i = 0, j = 1; i < numberOfDigits; i++, j++) {
-    if (isNaN(Number(fractionalNumber[i])) == false) {
-      fractionalDec += Number(fractionalNumber[i]) / Math.pow(fromBase,j);
+    // Remove trailing zeroes.
+    while (fracBase.charAt(fracBase.length - 1) == '0') {
+      fracBase = fracBase.slice(0, fracBase.length - 1);
     }
+    return fracBase; // string
   }
-  return String(fractionalDec).slice(2);
-}
-
-function baseConvertArrayToString (startArray) {
-  endString = '';
-  for (var i = 0; i < startArray.length; i ++) {
-    endString += String(startArray[i]);
-  }
-  return endString;
-}
-
-function baseConvertStringToArray (startString) {
-  endArray = [];
-  for (var i = 0; i < startString.length; i ++) {
-    endArray[i] = startString[i];
-  }
-  return endArray;
-}
-
-function baseConvertConvertFractionalToFinalBase (fractionalDec, toBase) {
-  var fractionalDecNumber = Number(fractionalDec);
-  /* Skip this function if there are only zeroes after the decimal point. */
-    if (fractionalDecNumber == 0) {
-    return '0';
-  }
-
-  var d = 1;
-  var r = [];
-  /* Fractions don't always translate nicely from one base to another, so this
-  For Loop will only run a maximum of 100 times to avoid getting stuck. */
-  for (var i = 0; d != 0 && i < 100; i++) {
-    a = Number('.' + String(fractionalDecNumber)) * toBase;
-    r[i] = Math.floor(a);
-    d = a - r[i];
-    /* Converts number 10 - 35 into letters A - Z. */
-    r[i] = r[i].toString(36).toUpperCase();
-    fractionalDecNumber = Number(String(d).slice(2));
-  }
-  var fractionalFinal = baseConvertArrayToString(r);
-  return fractionalFinal;
-}
-
-function baseConvertFlipArray (startingArray) {
-	var endingArray = [];
-	for (var i = 0, j = startingArray.length - 1; i < startingArray.length; i++, j--) {
-		endingArray[i] = startingArray[j];
-	}
-	return endingArray;
 }
