@@ -4,11 +4,11 @@ baseConvert.js by Dan Floyd (Floydman). Convert any real number between any two
 bases from 2 to 36.
 
 Usage: baseConvert(startingNumber, fromBase, toBase, fractionalLength)
-: startingNumber is the number you want to convert. (MANDATORY)
-: fromBase is the base you are converting from. (MANDATORY)
-: toBase is the base you are converting to. (MANDATORY)
-: fractLength is the maximum number of digits you would like after the
-: radix point. (OPTIONAL)
+- startingNumber is the number you want to convert. (MANDATORY)
+- fromBase is the base you are converting from. (MANDATORY)
+- toBase is the base you are converting to. (MANDATORY)
+- fractLength is the maximum number of digits you would like after the
+- radix point. (OPTIONAL)
 
 Works with all bases from 2 to 36; numbers are represented with numerals 0 - 9
 and letters A - Z. startingNumber must be a String if it contains any letters.
